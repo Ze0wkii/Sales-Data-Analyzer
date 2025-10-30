@@ -29,13 +29,14 @@ class Sales:
             df.to_csv(cls.CSV_file)
             print('File initialized Successfully.')
     @classmethod
-    def add_entry(cls, date, region, product, units_sold:int, price:int):
+    def add_entry(cls, date, region, product, units_sold:int, price:int, ppu, cpu):
         sales_data = {
             'Date': date,
             'Region': region,
             'Product': product,
+            'Price Per Unit':ppu,
+            'Cost Per Unit':cpu,
             'Units Sold': units_sold,
-            'Price': price
         }
         with open(cls.CSV_file, 'a', newline="") as df:
             writer = csv.DictWriter(df, fieldnames=cls.COLUMNS)
