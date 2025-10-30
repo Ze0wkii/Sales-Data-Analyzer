@@ -13,6 +13,7 @@
 #  3. month-on-month trends.
 
 import pandas as pd
+import numpy as np
 import csv
 
 class Sales:
@@ -28,7 +29,7 @@ class Sales:
             df.to_csv(cls.CSV_file)
             print('File initialized Successfully.')
     @classmethod
-    def add_entry(cls, date, region, product, units_sold, price):
+    def add_entry(cls, date, region, product, units_sold:int, price:int):
         sales_data = {
             'Date': date,
             'Region': region,
@@ -50,11 +51,20 @@ class Sales:
 
             # print(sales_csv)
             if not filtered_df.empty:
-                print(filtered_df)
+                # print(filtered_df)
                 product_values = filtered_df['Product'].values
-                sales_values = filtered_df['Units Sold'].values
+                unitsSold_values = filtered_df['Units Sold'].values
+
                 price_values = filtered_df['Price'].values
-                print(sales_values, product_values, price_values)
+                total_price = price_values.apply(lambda x,y: x+y)
+
+                total_unitsSold = unitsSold_values.apply(lambda x,y: x+y)
+                print(total_price, total_unitsSold)
+
+                print(f"Total sales: ${total_price*total_unitsSold}")
+
+
+                # print(unitsSold_values, product_values, price_values)
                 
             else:
                 print('The provided date and region does not exist')
@@ -67,4 +77,8 @@ class Sales:
 
 Sales.initializer()
 # Sales.add_entry('12-12-25', 'Thane', 'Ethanol', 500, 5000)
+# Sales.add_entry('12-12-25', 'Thane', 'Ethanol', 250, 3500)
+
 Sales.sales('12-12-25', 'Thane')
+
+
