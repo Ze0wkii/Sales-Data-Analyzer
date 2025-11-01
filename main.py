@@ -43,43 +43,48 @@ class Sales:
             writer.writerow(sales_data)
 
         print('Entry Successfully added.')
-@classmethod
-def sales(cls, date, region):
-    try:
-        sales_csv = pd.read_csv(cls.CSV_file)
-        filtered_df = sales_csv[(sales_csv['Date'] == date) & (sales_csv['Region'] == region)]
+    @classmethod
+    def sales(cls, date, region):
+        try:
+            sales_csv = pd.read_csv(cls.CSV_file)
+            print(sales_csv.columns)
+            sales_csv.columns = sales_csv.columns.str.strip()
 
-        if not filtered_df.empty:
-            products = filtered_df['Product'].values
+            filtered_df = sales_csv[(sales_csv['Date'] == date) & (sales_csv['Region'] == region)]
+            
+            print("Filtering for:", date, region)
+            print(filtered_df)
+            if not filtered_df.empty:
+                products = filtered_df['Product'].values
 
-            ppu = filtered_df['Price Per Unit'].values
-            cpu = filtered_df['Cost Per Unit'].values  # fixed column name
+                ppu = filtered_df['Price Per Unit'].values
+                cpu = filtered_df['Cost Per Unit'].values  # fixed column name
 
-            total_ppu = ppu.sum()
-            total_cpu = cpu.sum()
+                total_ppu = ppu.sum()
+                total_cpu = cpu.sum()
 
-            total_sales = total_ppu - total_cpu  # fixed logical direction (profit = revenue - cost)
+                total_sales = total_ppu - total_cpu  # fixed logical direction (profit = revenue - cost)
 
-            if total_sales >= 20:
-                condition = True
-            elif 0 <= total_sales < 20:
-                condition = False
+                if total_sales >= 20:
+                    condition = True
+                elif 0 <= total_sales < 20:
+                    condition = False
+                else:
+                    condition = None
+
+                # Moved this outside the if-else
+                if condition == True:
+                    print(f"Your sales are really positive.\nTotal Sales: {total_sales} on products {products}")
+                elif condition == False:
+                    print(f"Your sales are low but positive.\nTotal Sales: {total_sales} on products {products}")
+                else:
+                    print(f"You're in loss.\nTotal Sales: {total_sales} on products {products}")
+
             else:
-                condition = None
+                print('The provided date and region does not exist')
 
-            # Moved this outside the if-else
-            if condition == True:
-                print(f"Your sales are really positive.\nTotal Sales: {total_sales} on products {products}")
-            elif condition == False:
-                print(f"Your sales are low but positive.\nTotal Sales: {total_sales} on products {products}")
-            else:
-                print(f"You're in loss.\nTotal Sales: {total_sales} on products {products}")
-
-        else:
-            print('The provided date and region does not exist')
-
-    except Exception as e:
-        print(e)
+        except Exception as e:
+            print(e)
 
         
 
