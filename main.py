@@ -18,7 +18,7 @@ import csv
 
 class Sales:
     CSV_file = 'sales.csv'
-    COLUMNS = ['Date', 'Region', 'Product', 'Units Sold', 'Price']
+    COLUMNS = ['Date', 'Region', 'Product', 'Units Sold', 'Price Per Unit', 'Cost Per Unit']
 
     @classmethod
     def initializer(cls):
@@ -29,7 +29,7 @@ class Sales:
             df.to_csv(cls.CSV_file)
             print('File initialized Successfully.')
     @classmethod
-    def add_entry(cls, date, region, product, units_sold:int, price:int, ppu, cpu):
+    def add_entry(cls, date, region, product, units_sold:int, ppu:int, cpu:int):
         sales_data = {
             'Date': date,
             'Region': region,
@@ -43,43 +43,50 @@ class Sales:
             writer.writerow(sales_data)
 
         print('Entry Successfully added.')
-    @classmethod
-    def sales(cls, date, region):
-        try:
-            sales_csv = pd.read_csv(cls.CSV_file)
-            filtered_df = sales_csv[(sales_csv['Date'] == date) & (sales_csv['Region'] == region)]
+@classmethod
+def sales(cls, date, region):
+    try:
+        sales_csv = pd.read_csv(cls.CSV_file)
+        filtered_df = sales_csv[(sales_csv['Date'] == date) & (sales_csv['Region'] == region)]
 
+        if not filtered_df.empty:
+            products = filtered_df['Product'].values
 
-            # print(sales_csv)
-            if not filtered_df.empty:
-                # print(filtered_df)
-                product_values = filtered_df['Product'].values
-                unitsSold_values = filtered_df['Units Sold'].values
+            ppu = filtered_df['Price Per Unit'].values
+            cpu = filtered_df['Cost Per Unit'].values  # fixed column name
 
-                price_values = filtered_df['Price'].values
-                total_price = price_values.apply(lambda x,y: x+y)
+            total_ppu = ppu.sum()
+            total_cpu = cpu.sum()
 
-                total_unitsSold = unitsSold_values.apply(lambda x,y: x+y)
-                print(total_price, total_unitsSold)
+            total_sales = total_ppu - total_cpu  # fixed logical direction (profit = revenue - cost)
 
-                print(f"Total sales: ${total_price*total_unitsSold}")
-
-
-                # print(unitsSold_values, product_values, price_values)
-                
+            if total_sales >= 20:
+                condition = True
+            elif 0 <= total_sales < 20:
+                condition = False
             else:
-                print('The provided date and region does not exist')
-        except Exception as e:
-            print(e)
+                condition = None
+
+            # Moved this outside the if-else
+            if condition == True:
+                print(f"Your sales are really positive.\nTotal Sales: {total_sales} on products {products}")
+            elif condition == False:
+                print(f"Your sales are low but positive.\nTotal Sales: {total_sales} on products {products}")
+            else:
+                print(f"You're in loss.\nTotal Sales: {total_sales} on products {products}")
+
+        else:
+            print('The provided date and region does not exist')
+
+    except Exception as e:
+        print(e)
+
         
 
 
 
 
 Sales.initializer()
-# Sales.add_entry('12-12-25', 'Thane', 'Ethanol', 500, 5000)
-# Sales.add_entry('12-12-25', 'Thane', 'Ethanol', 250, 3500)
-
-Sales.sales('12-12-25', 'Thane')
+Sales.sales('01-11-25', 'Mumbai')
 
 
