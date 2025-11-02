@@ -46,45 +46,60 @@ class Sales:
     @classmethod
     def sales(cls, date, region):
         try:
+            # Read the CSV file, ignoring the unwanted index column
             sales_csv = pd.read_csv(cls.CSV_file)
-            print(sales_csv.columns)
-            sales_csv.columns = sales_csv.columns.str.strip()
 
-            filtered_df = sales_csv[(sales_csv['Date'] == date) & (sales_csv['Region'] == region)]
-            
-            print("Filtering for:", date, region)
-            print(filtered_df)
+
+            # Clean up column names and data (remove spaces, fix capitalization)
+            sales_csv.columns = sales_csv.columns.str.strip()
+            sales_csv['Date'] = sales_csv['Date'].astype(str).str.strip()
+            sales_csv['Region'] = sales_csv['Region'].astype(str).str.strip().str.title()
+
+            # Filter the DataFrame to match the given date and region
+            filtered_df = sales_csv[
+                (sales_csv['Date'] == date) &
+                (sales_csv['Region'] == region.title())
+            ]
+
+            # Check if any rows matched the given date & region
             if not filtered_df.empty:
                 products = filtered_df['Product'].values
 
+                # Extract price and cost per unit arrays
                 ppu = filtered_df['Price Per Unit'].values
-                cpu = filtered_df['Cost Per Unit'].values  # fixed column name
+                cpu = filtered_df['Cost Per Unit'].values
 
+                # Calculate total revenue and total cost
                 total_ppu = ppu.sum()
                 total_cpu = cpu.sum()
 
-                total_sales = total_ppu - total_cpu  # fixed logical direction (profit = revenue - cost)
+                # Calculate profit or loss
+                total_sales = total_ppu - total_cpu
 
+                # Determine the "condition" — performance category
                 if total_sales >= 20:
-                    condition = True
+                    condition = True   # strong profit
                 elif 0 <= total_sales < 20:
-                    condition = False
+                    condition = False  # low profit
                 else:
-                    condition = None
+                    condition = None   # loss
 
-                # Moved this outside the if-else
+                # Display appropriate message
                 if condition == True:
-                    print(f"Your sales are really positive.\nTotal Sales: {total_sales} on products {products}")
+                    print(f"✅ Your sales are really positive.\nTotal Sales: ${total_sales} on products: {products}")
                 elif condition == False:
-                    print(f"Your sales are low but positive.\nTotal Sales: {total_sales} on products {products}")
+                    print(f"⚠️ Your sales are low but still positive.\nTotal Sales: ${total_sales} on products: {products}")
                 else:
-                    print(f"You're in loss.\nTotal Sales: {total_sales} on products {products}")
+                    print(f"❌ You're in loss.\nTotal Sales: ${total_sales} on products: {products}")
 
+            # If no matching rows were found
             else:
-                print('The provided date and region does not exist')
+                print(filtered_df['Date'], filtered_df['Region'])
+                print('The provided date and region do not exist')
 
         except Exception as e:
             print(e)
+
 
         
 
