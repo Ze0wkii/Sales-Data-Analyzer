@@ -15,6 +15,7 @@
 import pandas as pd
 import numpy as np
 import csv
+from typing import Callable
 
 class Sales:
     CSV_file = 'sales.csv'
@@ -85,7 +86,7 @@ class Sales:
                     condition = None   # loss
 
                 # Display appropriate message
-                if condition == True:
+                if condition == True: 
                     print(f"✅ Your sales are really positive.\nTotal Sales: ${total_sales} on products: {products}")
                 elif condition == False:
                     print(f"⚠️ Your sales are low but still positive.\nTotal Sales: ${total_sales} on products: {products}")
@@ -99,14 +100,28 @@ class Sales:
 
         except Exception as e:
             print(e)
+    @classmethod
+    def profit(cls,sales: pd.DataFrame):
+        filtered_products = sales[
+            (sales['Units Sold'] == sales['Units Sold'].max()) &
+            (sales['Price Per Unit'] == sales['Price Per Unit'].max())
+        ].copy()
+        revenue = np.subtract(filtered_products['Price Per Unit'],filtered_products['Cost Per Unit'])
+        filtered_products['Total Sales'] = np.multiply(revenue, filtered_products['Units Sold'])
 
+        result_df = filtered_products[['Date', 'Region','Product','Total Sales']]
+        return result_df
 
+    @classmethod
+    def top_sellingProducts(cls,sales: pd.DataFrame, profit : Callable):
+        top_sales = profit(sales)
+        return top_sales
         
-
-
-
 
 Sales.initializer()
 Sales.sales('01-11-25', 'Mumbai')
+sales = pd.read_csv('sales.csv')
+print(Sales.top_sellingProducts(sales, Sales.profit))
+
 
 
