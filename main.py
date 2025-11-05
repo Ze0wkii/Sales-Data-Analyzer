@@ -110,7 +110,7 @@ class Sales:
         filtered_products['Total Sales'] = np.multiply(revenue, filtered_products['Units Sold'])
 
         result_df = filtered_products[['Date', 'Region','Product','Total Sales']]
-        return result_df
+        return print(f'{result_df}\n Your Highest selling product is {result_df["Product"].values}')
 
     @classmethod
     def top_sellingProducts(cls,sales: pd.DataFrame, profit : Callable):
